@@ -1,6 +1,7 @@
 package jpabook.jpashop.repository;
 
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -98,9 +99,9 @@ public class OrderRepository {
     }
 
     /**
-     *  JPA Criteria
+     * JPA Criteria
      */
-    public  List<Order> findAllByCriteria(OrderSearch orderSearch) {
+    public List<Order> findAllByCriteria(OrderSearch orderSearch) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
         Root<Order> o = cq.from(Order.class);
@@ -133,5 +134,14 @@ public class OrderRepository {
                         " join fetch o.member m" +
                         " join fetch o.delivery d", Order.class
         ).getResultList();
+    }
+
+    public List<OrderSimpleQueryDto> findOrderDtos() {
+        return em.createQuery(
+                "select new jpabook.jpashop.repository.OrderSimpleQueryDto(o.id, m.name, o.orderDate, o.status, d.address)" +
+                        " from Order o" +
+                        " join o.member m" +
+                        " join o.delivery d", OrderSimpleQueryDto.class)
+                .getResultList();
     }
 }
