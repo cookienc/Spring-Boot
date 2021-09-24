@@ -34,8 +34,7 @@ class MemberJpaRepositoryTest {
     }
 
     @Test
-    @DisplayName("basciCRUD")
-    void basciCrud() throws Exception {
+    void basicCrud() throws Exception {
         Member member1 = new Member("member1");
         Member member2 = new Member("member2");
         memberJpaRepository.save(member1);
