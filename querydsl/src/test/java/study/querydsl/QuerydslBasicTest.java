@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Member;
+import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
@@ -20,9 +22,11 @@ public class QuerydslBasicTest {
 
     @Autowired
     EntityManager em;
-
+    JPAQueryFactory queryFactory;
     @BeforeEach
     public void before() {
+        queryFactory = new JPAQueryFactory(em);
+
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
         em.persist(teamA);
@@ -44,9 +48,27 @@ public class QuerydslBasicTest {
     @DisplayName("startJPQL")
     void startJpql() throws Exception {
         //member1을 찾아라
-        Member findMember = em.createQuery("select m from Member m where m.username = :username", Member.class)
+        String qlString = 
+                "select m from Member m " +
+                "where m.username = :username";
+        Member findMember = em.createQuery(qlString, Member.class)
                 .setParameter("username", "member1")
                 .getSingleResult();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+    
+    @Test
+    @DisplayName("startQuerydsl")
+    void startQuerydsl() throws Exception {
+//        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        QMember m = new QMember("m");
+
+        Member findMember = queryFactory
+                .select(m)
+                .from(m)
+                .where(m.username.eq("member1"))
+                .fetchOne();
 
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
