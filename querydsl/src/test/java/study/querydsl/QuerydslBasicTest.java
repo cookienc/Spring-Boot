@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
@@ -372,7 +373,7 @@ public class QuerydslBasicTest {
         assertThat(result).extracting("age")
                 .containsExactly(30, 40);
     }
-    
+
     @Test
     public void subQueryIn() throws Exception {
 
@@ -390,7 +391,7 @@ public class QuerydslBasicTest {
         assertThat(result).extracting("age")
                 .containsExactly(20, 30, 40);
     }
-    
+
     @Test
     public void selectSubQuery() throws Exception {
 
@@ -449,7 +450,7 @@ public class QuerydslBasicTest {
             System.out.println("tuple = " + tuple);
         }
     }
-    
+
     @Test
     public void concat() throws Exception {
         List<String> result = queryFactory
@@ -547,8 +548,8 @@ public class QuerydslBasicTest {
                         member.username.as("name"), // 필드의 이름이 다르면 설정
 
                         ExpressionUtils.as(JPAExpressions //필드의 이름이 다르면 설정(서브쿼리 사용 시)
-                            .select(memberSub.age.max())
-                            .from(memberSub), "age")))
+                                .select(memberSub.age.max())
+                                .from(memberSub), "age")))
                 .from(member)
                 .fetch();
         for (UserDto userDto : result) {
@@ -568,4 +569,18 @@ public class QuerydslBasicTest {
             System.out.println("userDto = " + userDto);
         }
     }
+
+    @Test
+    public void findDtoByQueryProjection() throws Exception {
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+
 }
